@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Exec(Test-Path)",
+      "Exec($env:USERPROFILE\\apache-maven\\apache-maven-3.9.16)"
+    ]
+  }
+}
