@@ -12,6 +12,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
+
+import java.lang.reflect.Array;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -54,44 +56,30 @@ public class UserServiceImpl implements UserService {
     @Override
     public List<User> getAllUser() {
 
-            List<User> user = this.userRepo.findAll();
+        List<User> user = this.userRepo.findAll();
 
-        //     for(int i = 0; i < user.size(); i++){
+        for(int i = 0; i < user.size(); i++){
 
-        //         // implementing RATING Service call 
-                
-        //         // fetching ratings info of all users
+            // calling two microservices
 
-        //         Rating[] infor = restTemplate.getForObject("http://RATING-SERVICE/ratings/users/" + user.get(i).getUserId(), Rating[].class);
+            // fetching ratings info of all users
+            Rating[] infor = restTemplate.getForObject("http://RATING-SERVICE/ratings/users/" + user.get(i).getUserId(), Rating[].class);
 
-        //         List<Rating> rating = Arrays.asList(infor);
+            List<Rating> rating = Arrays.asList(infor);
 
-        //         user.get(i).setRatings(rating);
-
-        //     }
-
-            user.forEach(user1 -> {
-                
-                Rating[] infor = restTemplate.getForObject("http://RATING-SERVICE/ratings/users/" + user1.getUserId(), Rating[].class);
-
-                List<Rating> ratingsss = Arrays.asList(infor);
-
-                ratingsss.forEach(user2 ->
-                    
-                    {
-                        Hotel aaa = hotelService.hotelInfo(user2.getHotelId());
-                        System.out.println("---------------------------");
-                        List<Hotel> aba = Arrays.asList(aaa);
-                        user
-                    }
- 
-                );
-
-                user1.setRatings(ratingsss);
+            // fetching info using feign client 
+            rating.forEach(rating1 -> {
+                Hotel he = hotelService.hotelInfo(rating1.getHotelId());
+                List<Hotel> hee = Arrays.asList(he);
+                rating1.setHotel(hee);
             });
+
+            user.get(i).setRatings(rating);
+        }
 
         return user;
     }
+
 
     @Override
     public User getUserById(String userId) {
@@ -119,7 +107,6 @@ public class UserServiceImpl implements UserService {
             System.out.println("------------------------------------------------------------------");
             // log.info("{}", ratingOfUser);
             user.setRatings(ratings);
-
             return user;
     }
 
